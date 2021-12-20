@@ -115,7 +115,7 @@ const screens = [
                     type: "h", halign: -1, c: [
                         { type: "txt", font: "10%", col: "#0f0", label: "Steps: ", id: "stepsText" },
                         { width: 5 },
-                        { type: "txt", font: "10%", halign: -1, col: "#0f0", id: "steps", label: "", fillx: 1 }]
+                        { type: "txt", font: "10%", halign: -1, col: "#0f0", id: "steps", label: "0", fillx: 1 }]
                 }],
             lazy: true
         })
