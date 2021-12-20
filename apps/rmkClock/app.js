@@ -125,10 +125,10 @@ const screens = [
         activated: false,
         onActivate: () => {
             console.log("gps onactiv");
-            E.showPrompt("GPS " + locale.translate("on") + "?", {
-                title: "GPS " + locale.translate("on") + "?",
-                buttons: { yes: true, no: false }
-            });
+            /*            E.showPrompt("GPS " + locale.translate("on") + "?", {
+                            title: "GPS " + locale.translate("on") + "?",
+                            buttons: { yes: true, no: false }
+                        });*/
         }
     },
     { name: "Test3", bgColor: "#0f0", color: "#fff" },
