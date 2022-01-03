@@ -18,10 +18,6 @@ function layoutRedraw(layout, element, newValue) {
     }
 }
 
-function drawGPS() {
-
-}
-
 function draw() {
     console.log("draw");
     g.reset();
@@ -41,15 +37,17 @@ const screens = [
         name: "Clock",
         activated: false,
         dailySteps: 0,
+        currentDate: 0,
         draw: function () {
             console.log("clock draw");
             var d = new Date();
             var h = d.getHours(), m = d.getMinutes();
+
             var time = ("0" + h).substr(-2) + ":" + ("0" + m).substr(-2);
             //            var seconds = ("0" + d.getSeconds()).substr(-2);
             var dow = locale.dow(d, 1);
             var day = ("0" + d.getDate()).substr(-2);
-            var month = ("0" + d.getMonth()).substr(-2);
+            var month = ("0" + d.getMonth() + 1).substr(-2);
             var year = d.getFullYear().toString().substr(-2);
             var dateStr = `${dow} ${day}.${month}.${year}`;
 
@@ -71,8 +69,9 @@ const screens = [
             var steps = 0;
 
             health.readDay(date, hour => { steps += hour.steps; });
-            if (steps) {
+            if (steps || date.getDate() != this.currentDate) {
                 this.dailySteps = steps;
+                this.currentDate = date.getDate();
                 layoutRedraw(this.layout, "steps", locale.number(this.dailySteps, 0));
             }
 
