@@ -3,7 +3,6 @@ const screenHeight = g.getHeight();
 const screenWidth = g.getWidth();
 
 const locale = require("locale");
-const health = require("health");
 const Layout = require("Layout");
 
 // Load fonts
@@ -36,8 +35,6 @@ const screens = [
     {
         name: "Clock",
         activated: false,
-        dailySteps: 0,
-        currentDate: 0,
         draw: function () {
             console.log("clock draw");
             var d = new Date();
@@ -52,30 +49,10 @@ const screens = [
             var dateStr = `${dow} ${day}.${month}.${year}`;
 
             layoutRedraw(this.layout, "time", time);
-            //            layoutRedraw(this.layout, "seconds", seconds);
             layoutRedraw(this.layout, "date", dateStr);
-            //            layoutRedraw(this.layout, "steps", locale.number(this.dailySteps, 0));
+            layoutRedraw(this.layout, "steps", Bangle.getHealthStatus("day").steps);
 
             this.clockTimeout = setTimeout(this.draw.bind(this), 60000 - (Date.now() % 60000));
-        },
-        getSteps: function () {
-            console.log("clock getsteps");
-
-            if (!health) {
-                return;
-            }
-
-            const date = new Date();
-            var steps = 0;
-
-            health.readDay(date, hour => { steps += hour.steps; });
-            if (steps || date.getDate() != this.currentDate) {
-                this.dailySteps = steps;
-                this.currentDate = date.getDate();
-                layoutRedraw(this.layout, "steps", locale.number(this.dailySteps, 0));
-            }
-
-            this.stepsTimeout = setTimeout(this.getSteps.bind(this), 600000 - (Date.now() % 600000));
         },
         onActivate: function () {
             console.log("clock onActivate");
@@ -83,8 +60,6 @@ const screens = [
             g.clearRect(0, 24, screenWidth, screenHeight);
 
             this.draw();
-
-            setTimeout(this.getSteps.bind(this), 100);
         },
         onDeactivate: function () {
             console.log("clock onDeactivate");
@@ -99,14 +74,8 @@ const screens = [
         },
         layout: new Layout({
             type: "v",
-            c: [//{
-                //                type: "h",
-                //                c: [
+            c: [
                 { type: "txt", font: "7x11Numeric7Seg:4", label: "     ", id: "time" },
-                //                    { width: 5 },
-                //                    { type: "txt", font: "7x11Numeric7Seg:2", label: "  ", id: "seconds", valign: 1 }
-                //                ]
-                //            },
                 { height: 2 },
                 { type: "txt", font: "15%", label: "", id: "date", fillx: 1 },
                 { height: 5 },
