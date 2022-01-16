@@ -50,7 +50,7 @@ const screens = [
 
             layoutRedraw(this.layout, "time", time);
             layoutRedraw(this.layout, "date", dateStr);
-            layoutRedraw(this.layout, "steps", Bangle.getHealthStatus("day").steps);
+            layoutRedraw(this.layout, "steps", locale.number(Bangle.getHealthStatus("day").steps, 0));
 
             this.clockTimeout = setTimeout(this.draw.bind(this), 60000 - (Date.now() % 60000));
         },
