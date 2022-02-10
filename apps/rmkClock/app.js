@@ -37,16 +37,16 @@ const screens = [{
     draw: function() {
       console.log("clock draw");
       var d = new Date();
-      var h = d.getHours(),
-        m = d.getMinutes();
 
-      var time = ("0" + h).substr(-2) + ":" + ("0" + m).substr(-2);
-      //            var seconds = ("0" + d.getSeconds()).substr(-2);
+      var h = d.getHours().toString();
+      var m = d.getMinutes().toString();
       var dow = locale.dow(d, 1);
-      var day = ("0" + d.getDate()).substr(-2);
-      var month = ("0" + d.getMonth() + 1).substr(-2);
+      var day = d.getDate().toString();
+      var month = (d.getMonth() + 1).toString();
       var year = d.getFullYear().toString().substr(-2);
-      var dateStr = `${dow} ${day}.${month}.${year}`;
+
+      var time = h.padStart(2, "0") + ":" + m.padStart(2, "0");
+      var dateStr = `${dow} ${day.padStart(2, "0")}.${month.padStart(2, "0")}.${year}`;
 
       layoutRedraw(this.layout, "time", time);
       layoutRedraw(this.layout, "date", dateStr);
