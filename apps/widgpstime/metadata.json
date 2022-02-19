@@ -5,9 +5,10 @@
   "description": "Gets the current GPS time every 4 hours and updates the local time if needed",
   "icon": "widget.png",
   "screenshots": [
-    {
-      "url": "screenshot.png"
-    }
+    { "url": "Bangle1_1.png" },
+    { "url": "Bangle1_2.png" },
+    { "url": "Bangle2_1.png" },
+    { "url": "Bangle2_2.png" }
   ],
   "readme": "README.md",
   "type": "widget",
