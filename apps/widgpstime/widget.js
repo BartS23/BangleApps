@@ -22,8 +22,8 @@
 
   function enableGPS() {
     Bangle.on("GPS", calcTimeDifference);
-    Bangle.setGPSPower(1, "gpsAutoTime");
-    WIDGETS["gpsAutoTime"].width = 22;
+    Bangle.setGPSPower(1, "widgpstime");
+    WIDGETS["widgpstime"].width = 22;
     Bangle.drawWidgets();
 
     // disable gps after 10 seconds
@@ -37,15 +37,15 @@
       clearTimeout(gpsTimeout);
     }
 
-    Bangle.setGPSPower(0, "gpsAutoTime");
+    Bangle.setGPSPower(0, "widgpstime");
     Bangle.removeListener("GPS", calcTimeDifference);
 
-    WIDGETS["gpsAutoTime"].timeFound = timeFound;
-    WIDGETS["gpsAutoTime"].draw();
+    WIDGETS["widgpstime"].timeFound = timeFound;
+    WIDGETS["widgpstime"].draw();
 
     setTimeout(() => {
-      WIDGETS["gpsAutoTime"].width = 0;
-      WIDGETS["gpsAutoTime"].timeFound = false;
+      WIDGETS["widgpstime"].width = 0;
+      WIDGETS["widgpstime"].timeFound = false;
       Bangle.drawWidgets();
     }, timeFound ? 5000 : 10);
 
@@ -53,7 +53,7 @@
   }
 
   // add your widget
-  WIDGETS["gpsAutoTime"] = {
+  WIDGETS["widgpstime"] = {
     area: "tl", // tl (top left), tr (top right), bl (bottom left), br (bottom right)
     width: 0, // width of the widget
     timeFound: false,
