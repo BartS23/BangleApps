@@ -33,6 +33,6 @@ jobs:
         run: |
           git checkout gh-pages
           git branch -a
-          git reset --hard master
+          git reset --hard remotes/origin/master
           git branch -a | grep remotes | grep -v gh-pages | grep -v HEAD | grep -v master | xargs git merge
           git push
