@@ -32,5 +32,7 @@ jobs:
       - name: Merge to gh pages
         run: |
           git checkout gh-pages
-          git branch -a | grep remotes | grep -v gh-pages | grep -v HEAD | xargs git merge
+          git reset --hard master
+          git branch -a
+          git branch -a | grep remotes | grep -v gh-pages | grep -v HEAD | grep -v master | xargs git merge
           git push
