@@ -1,7 +1,7 @@
 {
   "id": "widgpstime",
   "name": "GPS Time Widget",
-  "version": "0.01",
+  "version": "0.02",
   "description": "Gets the current GPS time every 4 hours and updates the local time if needed",
   "icon": "widget.png",
   "screenshots": [
@@ -18,9 +18,12 @@
     "BANGLEJS2"
   ],
   "storage": [
-    {
-      "name": "widgpstime.wid.js",
-      "url": "widget.js"
-    }
+    { "name": "widgpstime.wid.js", "url": "widget.js" },
+    { "name": "widgpstime.settings.js", "url": "settings.js" }
+  ],
+  "data": [
+    { "name": "widgpstime.json", "storageFile": false },
+    { "name": "widgpstime.log", "storageFile": true },
+    { "name": "widgpstime.txt", "storageFile": true }
   ]
 }
