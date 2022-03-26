@@ -9,7 +9,7 @@ const Layout = require("Layout");
 require("Font7x11Numeric7Seg").add(Graphics);
 
 function layoutRedraw(layout, element, newValue) {
-  console.log("layoutRedraw");
+  //console.log("layoutRedraw");
   if (layout[element].label !== newValue) {
     layout.clear(layout[element]);
     layout[element].label = newValue;
@@ -18,7 +18,7 @@ function layoutRedraw(layout, element, newValue) {
 }
 
 function draw() {
-  console.log("draw");
+  //console.log("draw");
   g.reset();
 
   if (screens[currentScreen]) {
@@ -35,7 +35,7 @@ const screens = [{
     name: "Clock",
     activated: false,
     draw: function() {
-      console.log("clock draw");
+      //console.log("clock draw");
       var d = new Date();
 
       var h = d.getHours().toString();
@@ -55,14 +55,14 @@ const screens = [{
       this.clockTimeout = setTimeout(this.draw.bind(this), 60000 - (Date.now() % 60000));
     },
     onActivate: function() {
-      console.log("clock onActivate");
+      //console.log("clock onActivate");
       g.reset();
       g.clearRect(0, 24, screenWidth, screenHeight);
 
       this.draw();
     },
     onDeactivate: function() {
-      console.log("clock onDeactivate");
+      //console.log("clock onDeactivate");
       if (this.clockTimeout) {
         clearTimeout(this.clockTimeout);
       }
@@ -125,7 +125,7 @@ const screens = [{
     name: "GPS",
     activated: false,
     onActivate: () => {
-      console.log("gps onactiv");
+      //console.log("gps onactiv");
       /*            E.showPrompt("GPS " + locale.translate("on") + "?", {
                       title: "GPS " + locale.translate("on") + "?",
                       buttons: { yes: true, no: false }
@@ -167,7 +167,7 @@ const screens = [{
 var currentScreen = 0;
 
 function changeScreen(dir) {
-  console.log("Swipe");
+  //console.log("Swipe");
   if (currentScreen > -1) {
     if (screens[currentScreen].onDeactivate) {
       screens[currentScreen].onDeactivate();
@@ -182,7 +182,7 @@ function changeScreen(dir) {
     }
 
     if (screens[currentScreen].onActivate) {
-      console.log(`onActivate ${currentScreen}`);
+      //console.log(`onActivate ${currentScreen}`);
       screens[currentScreen].onActivate();
       screens[currentScreen].activated = true;
     } else {
@@ -190,7 +190,7 @@ function changeScreen(dir) {
     }
 
     if (screens[currentScreen].layout) {
-      console.log(`Layout render ${currentScreen}`);
+      //console.log(`Layout render ${currentScreen}`);
       screens[currentScreen].layout.render();
     }
   }
@@ -199,7 +199,7 @@ function changeScreen(dir) {
 Bangle.on('swipe', changeScreen);
 
 Bangle.on(' ', on => {
-  console.log("lcdPower");
+  //console.log("lcdPower");
   if (on && !screens[currentScreen].activated) {
     if (screens[currentScreen].onActivate) {
       screens[currentScreen].onActivate();
