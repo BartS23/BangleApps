@@ -20,12 +20,11 @@
 
     // if difference > {settings.setDifference} second/s -> set time
     if (Math.abs(delta) / 1000 >= settings.setDifference) {
-      if (settings.logTimeSetting) {
-        require("Storage").open("widgpstime.log", "a").write(`${currentDateTime.toISOString()} difference ${(delta / 1000).toFixed(3)} second/s setting time from ${currentDateTime.toISOString()} to`);
-      }
+      var log = `${currentDateTime.toISOString()} difference ${(delta / 1000).toFixed(3)} second/s setting time from ${currentDateTime.toISOString()} to `;
       setTime((new Date() + delta) / 1000);
+      log += new Date().toISOString();
       if (settings.logTimeSetting) {
-        require("Storage").open("widgpstime.log", "a").write(`${new Date().toISOString()}\n`);
+        require("Storage").open("widgpstime.log", "a").write(`${log}\n`);
       }
     }
     if (settings.setOnReset) {
