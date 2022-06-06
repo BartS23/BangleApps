@@ -44,7 +44,7 @@ jobs:
         run: git merge remotes/origin/master
         
       - name: Merge other branches
-        run: git branch -a | grep remotes | grep -v gh-pages | grep -v HEAD | grep -v master | xargs git merge
+        run: git branch -a | grep remotes | grep -v gh-pages | grep -v HEAD | grep -v master | xargs git merge --allow-unrelated-histories
         
       - name: push 
         run: git push
