@@ -31,6 +31,7 @@ function WARN(msg, opt) {
   // file=app.js,line=1,col=5,endColumn=7
   opt = opt||{};
   console.log(`::warning${Object.keys(opt).length?" ":""}${Object.keys(opt).map(k=>k+"="+opt[k]).join(",")}::${msg}`);
+  console.log(`--warning${Object.keys(opt).length?" ":""}${Object.keys(opt).map(k=>k+"="+opt[k]).join(",")}::${msg}`);
   warningCount++;
 }
 
