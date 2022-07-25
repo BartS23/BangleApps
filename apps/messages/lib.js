@@ -104,11 +104,11 @@ exports.clearAll = function(event) {
 
 exports.getMessageImage = function(msg) {
   /*
-  * icons should be 24x24px with 1bpp colors and 'Transparency to Color'
+  * icons should be 24x24px or less with 1bpp colors and 'Transparency to Color'
   * http://www.espruino.com/Image+Converter
   */
   if (msg.img) return atob(msg.img);
-  var s = (msg.src||"").toLowerCase();
+  const s = (("string"=== typeof msg) ? msg : (msg.src || "")).toLowerCase();
   if (s=="airbnb") return atob("GBgBAAAAAAAAAAAAADwAAH4AAGYAAMMAAIEAAYGAAYGAAzzAA2bABmZgBmZgDGYwDDwwCDwQCBgQDDwwB+fgA8PAAAAAAAAAAAAA");
   if (s=="alarm" || s =="alarmclockreceiver") return atob("GBjBAP////8AAAAAAAACAEAHAOAefng5/5wTgcgHAOAOGHAMGDAYGBgYGBgYGBgYGBgYDhgYBxgMATAOAHAHAOADgcAB/4AAfgAAAAAAAAA=");
   if (s=="bibel") return atob("GBgBAAAAA//wD//4D//4H//4H/f4H/f4H+P4H4D4H4D4H/f4H/f4H/f4H/f4H/f4H//4H//4H//4GAAAEAAAEAAACAAAB//4AAAA");
@@ -150,10 +150,11 @@ exports.getMessageImage = function(msg) {
   if (s=="youtube" || s=="newpipe") return atob("GBgBAAAAAAAAAAAAAAAAAf8AH//4P//4P//8P//8P5/8P4/8f4P8f4P8P4/8P5/8P//8P//8P//4H//4Af8AAAAAAAAAAAAAAAAA");
   if (msg.id=="music") return atob("FhaBAH//+/////////////h/+AH/4Af/gB/+H3/7/f/v9/+/3/7+f/vB/w8H+Dwf4PD/x/////////////3//+A=");
   // if (s=="sms message" || s=="mail" || s=="gmail") // .. default icon (below)
-  return atob("HBKBAD///8H///iP//8cf//j4//8f5//j/x/8//j/H//H4//4PB//EYj/44HH/Hw+P4//8fH//44///xH///g////A==");
+  return atob("FhKBAH//+P//yf/+c//z5/+fz/z/n+f/Pz/+ef/8D///////////////////////f//4///A");
 };
 
 exports.getMessageImageCol = function(msg,def) {
+  const s = (("string"=== typeof msg) ? msg : (msg.src || "")).toLowerCase();
   return {
     // generic colors, using B2-safe colors
     "airbnb": "#f00",
@@ -202,5 +203,5 @@ exports.getMessageImageCol = function(msg,def) {
     "whatsapp": "#4fce5d",
     "wordfeud": "#e7d3c7",
     "youtube": "#f00",
-  }[(msg.src||"").toLowerCase()]||(def !== undefined?def:g.theme.fg);
+  }[s]||(def !== undefined?def:g.theme.fg);
 };
