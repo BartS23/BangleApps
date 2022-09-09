@@ -8,7 +8,8 @@ const storage = require('Storage');
  * Statics
  */
 const SETTINGS_FILE = "bwclk.setting.json";
-const TIMER_IDX = "bwclk";
+const TIMER_IDX = "bwclk_timer";
+const TIMER_AGENDA_IDX = "bwclk_agenda";
 const W = g.getWidth();
 const H = g.getHeight();
 
@@ -181,6 +182,14 @@ function imgAgenda() {
   }
 }
 
+function imgMountain() {
+  return {
+    width : 24, height : 24, bpp : 1,
+    transparent : 1,
+    buffer : atob("//////////////////////3///n///D//uZ//E8//A+/+Z+f8//P5//n7//3z//zn//5AAAAAAAA////////////////////")
+  }
+}
+
 /************
  * 2D MENU with entries of:
  * [name, icon, opt[customDownFun], opt[customUpFun], opt[customCenterFun]]
@@ -189,12 +198,14 @@ function imgAgenda() {
 var menu = [
   [
     function(){ return [ null, null ] },
+    function(){ return [ "Week " + weekOfYear(), null ] },
   ],
   [
     function(){ return [ "Bangle", imgWatch() ] },
     function(){ return [ E.getBattery() + "%", Bangle.isCharging() ? imgCharging() : imgBattery() ] },
     function(){ return [ getSteps(), imgSteps() ] },
     function(){ return [ Math.round(Bangle.getHealthStatus("last").bpm) + " bpm", imgBpm()] },
+    function(){ return [ measureAltitude, imgMountain() ]},
   ]
 ]
 
@@ -205,8 +216,8 @@ try{
   require('sched');
   menu.push([
     function(){
-      var text = isAlarmEnabled() ? getAlarmMinutes() + " min." : "Timer";
-      return [text, imgTimer(), () => decreaseAlarm(), () => increaseAlarm(), null ]
+      var text = isAlarmEnabled(TIMER_IDX) ? getAlarmMinutes(TIMER_IDX) + " min." : "Timer";
+      return [text, imgTimer(), () => decreaseAlarm(TIMER_IDX), () => increaseAlarm(TIMER_IDX), null ]
     },
   ]);
 } catch(ex) {
@@ -219,6 +230,7 @@ try{
  * Note that we handle the agenda differently in order to hide old entries...
  */
 var agendaIdx = 0;
+var agendaTimerIdx = 0;
 if(storage.readJSON("android.calendar.json") !== undefined){
   function nextAgendaEntry(){
     agendaIdx += 1;
@@ -246,9 +258,43 @@ if(storage.readJSON("android.calendar.json") !== undefined){
       var title = entry.title.slice(0,14);
       var date = new Date(entry.timestamp*1000);
       var dateStr = locale.date(date).replace(/\d\d\d\d/,"");
-      dateStr += entry.durationInSeconds < 86400 ? " / " + locale.time(date,1) : "";
+      dateStr += entry.durationInSeconds < 86400 ? "/ " + locale.time(date,1) : "";
 
-      return [title + "\n" + dateStr, imgAgenda(), () => nextAgendaEntry(), () => previousAgendaEntry(), null]
+      function dynImgAgenda(){
+        if(isAlarmEnabled(TIMER_AGENDA_IDX) && agendaTimerIdx == agendaIdx){
+          return imgTimer();
+        } else {
+          return imgAgenda();
+        }
+      }
+
+      return [title + "\n" + dateStr, dynImgAgenda(), () => nextAgendaEntry(), () => previousAgendaEntry(), function(){
+        try{
+          var alarm = require('sched')
+
+          // If other time, we disable the old one and enable this one.
+          if(agendaIdx != agendaTimerIdx){
+            agendaTimerIdx = -1;
+            alarm.setAlarm(TIMER_AGENDA_IDX, undefined);
+          }
+
+          // Disable alarm if enabled
+          if(isAlarmEnabled(TIMER_AGENDA_IDX)){
+            agendaTimerIdx = -1;
+            alarm.setAlarm(TIMER_AGENDA_IDX, undefined);
+            alarm.reload();
+            return
+          }
+
+          // Otherwise, set alarm for given event
+          agendaTimerIdx = agendaIdx;
+          alarm.setAlarm(TIMER_AGENDA_IDX, {
+            msg: title,
+            timer : parseInt((date - now)),
+          });
+          alarm.reload();
+        } catch(ex){ }
+      }]
     },
   ]);
 }
@@ -296,7 +342,22 @@ function getMenuEntry(){
   // could be larger than infoArray.length...
   settings.menuPosX = settings.menuPosX % menu.length;
   settings.menuPosY = settings.menuPosY % menu[settings.menuPosX].length;
-  return menu[settings.menuPosX][settings.menuPosY]();
+  var menuEntry = menu[settings.menuPosX][settings.menuPosY]();
+
+  if(menuEntry[0] == null){
+    return menuEntry;
+  }
+
+  // For the first entry we always convert it into a callback function
+  // such that the menu is compatible with async functions such as
+  // measuring the pressure, altitude or sending http requests...
+  if(typeof menuEntry[0] !== 'function'){
+    var value = menuEntry[0];
+    menuEntry[0] = function(callbackFun){
+      callbackFun(String(value), settings.menuPosX, settings.menuPosY);
+    }
+  }
+  return menuEntry;
 }
 
 
@@ -363,11 +424,24 @@ function getWeather(){
   };
 }
 
+// From https://weeknumber.com/how-to/javascript
+function weekOfYear() {
+    var date = new Date();
+    date.setHours(0, 0, 0, 0);
+    // Thursday in current week decides the year.
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    // January 4 is always in week 1.
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                          - 3 + (week1.getDay() + 6) % 7) / 7);
+}
 
-function isAlarmEnabled(){
+
+function isAlarmEnabled(idx){
   try{
     var alarm = require('sched');
-    var alarmObj = alarm.getAlarm(TIMER_IDX);
+    var alarmObj = alarm.getAlarm(idx);
     if(alarmObj===undefined || !alarmObj.on){
       return false;
     }
@@ -379,22 +453,22 @@ function isAlarmEnabled(){
 }
 
 
-function getAlarmMinutes(){
-  if(!isAlarmEnabled()){
+function getAlarmMinutes(idx){
+  if(!isAlarmEnabled(idx)){
     return -1;
   }
 
   var alarm = require('sched');
-  var alarmObj =  alarm.getAlarm(TIMER_IDX);
+  var alarmObj =  alarm.getAlarm(idx);
   return Math.round(alarm.getTimeToAlarm(alarmObj)/(60*1000));
 }
 
 
-function increaseAlarm(){
+function increaseAlarm(idx){
   try{
-    var minutes = isAlarmEnabled() ? getAlarmMinutes() : 0;
-    var alarm = require('sched')
-    alarm.setAlarm(TIMER_IDX, {
+    var minutes = isAlarmEnabled(idx) ? getAlarmMinutes(idx) : 0;
+    var alarm = require('sched');
+    alarm.setAlarm(idx, {
       timer : (minutes+5)*60*1000,
     });
     alarm.reload();
@@ -402,22 +476,39 @@ function increaseAlarm(){
 }
 
 
-function decreaseAlarm(){
+function decreaseAlarm(idx){
   try{
-    var minutes = getAlarmMinutes();
+    var minutes = getAlarmMinutes(idx);
     minutes -= 5;
 
     var alarm = require('sched')
-    alarm.setAlarm(TIMER_IDX, undefined);
+    alarm.setAlarm(idx, undefined);
 
     if(minutes > 0){
-      alarm.setAlarm(TIMER_IDX, {
+      alarm.setAlarm(idx, {
         timer : minutes*60*1000,
       });
     }
 
     alarm.reload();
   } catch(ex){ }
+}
+
+
+function measureAltitude(callbackFun){
+  var oldX = settings.menuPosX;
+  var oldY = settings.menuPosY;
+  try{
+    Bangle.getPressure().then(data=>{
+      if(data && data.altitude && data.altitude > -100){
+        callbackFun(Math.round(data.altitude) + "m", oldX, oldY);
+      } else {
+        callbackFun("???", oldX, oldY);
+      }
+    });
+  }catch(ex){
+    callbackFun("err", oldX, oldY);
+  }
 }
 
 
@@ -487,46 +578,55 @@ function drawTime(){
   y += parseInt((H - y)/2) + 5;
 
   var menuEntry = getMenuEntry();
-  var menuName = String(menuEntry[0]);
+  var menuTextFun = menuEntry[0];
   var menuImg = menuEntry[1];
   var printImgLeft = settings.menuPosY != 0;
 
   // Show large or small time depending on info entry
-  if(menuName == null){
+  if(menuTextFun == null){
     g.setLargeFont();
+    g.drawString(timeStr, W/2, y);
+    return;
   } else {
     y -= 15;
     g.setMediumFont();
-  }
-  g.drawString(timeStr, W/2, y);
-
-  // Draw menu if set
-  if(menuName == null){
-    return;
+    g.drawString(timeStr, W/2, y);
   }
 
-  y += 35;
-  g.setFontAlign(0,0);
+  // Async set the menu (could be that some data is async fetched)
+  menuTextFun((menuText, oldX, oldY) => {
 
-  if(menuName.split('\n').length > 1){
-    g.setMiniFont();
-  } else {
-    g.setSmallFont();
-  }
+    // We display the text IFF the user did not change the menu
+    if(settings.menuPosX != oldX || settings.menuPosY != oldY){
+      return;
+    }
 
-  var imgWidth = 0;
-  if(menuImg !== undefined){
-    imgWidth = 24.0;
-    var strWidth = g.stringWidth(menuName);
-    var scale = imgWidth / menuImg.width;
-    g.drawImage(
-      menuImg,
-      W/2 + (printImgLeft ? -strWidth/2-4 : strWidth/2+4) - parseInt(imgWidth/2),
-      y - parseInt(imgWidth/2),
-      { scale: scale }
-    );
-  }
-  g.drawString(menuName, printImgLeft ? W/2 + imgWidth/2 + 2 : W/2 - imgWidth/2 - 2, y+3);
+    // As its a callback, we have to ensure that the color
+    // font etc. is still correct...
+    g.setColor(g.theme.bg);
+    g.setFontAlign(0,0);
+    y += 35;
+
+    if(menuText.split('\n').length > 1){
+      g.setMiniFont();
+    } else {
+      g.setSmallFont();
+    }
+
+    var imgWidth = 0;
+    if(menuImg){
+      imgWidth = 24.0;
+      var strWidth = g.stringWidth(menuText);
+      var scale = imgWidth / menuImg.width;
+      g.drawImage(
+        menuImg,
+        W/2 + (printImgLeft ? -strWidth/2-4 : strWidth/2+4) - parseInt(imgWidth/2),
+        y - parseInt(imgWidth/2),
+        { scale: scale }
+      );
+    }
+    g.drawString(menuText, printImgLeft ? W/2 + imgWidth/2 + 2 : W/2 - imgWidth/2 - 2, y+3);
+  });
 }
 
 
@@ -670,6 +770,7 @@ Bangle.on('touch', function(btn, e){
           menuEntry[4]();
           setTimeout(()=>{
             Bangle.buzz(80, 0.6);
+            drawTime();
           }, 250);
         } catch(ex){
           // In case it fails, we simply ignore it.
@@ -698,6 +799,9 @@ E.on("kill", function(){
 // dark/light theme as well as the colors.
 g.setTheme({bg:g.theme.fg,fg:g.theme.bg, dark:!g.theme.dark}).clear();
 
+// Show launcher when middle button pressed
+Bangle.setUI("clock");
+
 // Load widgets and draw clock the first time
 Bangle.loadWidgets();
 
@@ -707,6 +811,3 @@ for (let wd of WIDGETS) {wd._draw=wd.draw; wd._area=wd.area;}
 
 // Draw first time
 draw();
-
-// Show launcher when middle button pressed
-Bangle.setUI("clock");
