@@ -1,0 +1,18 @@
+{
+  "id": "rmkEvents",
+  "name": "RMK EVents",
+  "version": "0.01",
+  "description": "My Events",
+  "icon": "rmkEvents.png",
+  "supports": [ "BANGLEJS2" ],
+  "storage": [
+    { "name": "rmkEvents.boot.js", "url": "rmkEvents.boot.js" },
+    { "name": "rmkEvents.js", "url": "rmkEvents.js" },
+    { "name": "rmkEvents.img", "url": "rmkEvents-icon.js", "evaluate": true },
+    { "name": "rmkEvents", "url": "rmkEvents.lib.js" }
+  ],
+  "data": [
+    { "name": "rmkEvents.json" },
+    { "name": "rmkEvents-*.log", "storageFile": true }
+  ]
+}
