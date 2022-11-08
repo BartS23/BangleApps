@@ -1,6 +1,3 @@
-
-
-// rmkEvents.lib.js
 let settings;
 
 function log(msg) {
@@ -135,18 +132,18 @@ function update() {
     }
     return;
   }
-  
+
 
   if (Bangle.rmkEvents) {
     clearTimeout(Bangle.rmkEvents);
     Bangle.rmkEvents = undefined;
   }
-log("Updating");
-  
+  log("Updating");
+
   settings.nextUpdate = Date.now() + settings.updateInterval;
   if (Bangle.http) {
     log("fetching Daten");
-    Bangle.http("https://test.stressbengel.de/caldav/t2.php?token=" + getToken(settings.token), {headers:{}})
+    Bangle.http("https://test.stressbengel.de/caldav/t2.php?token=" + getToken(settings.token), { headers: {} })
       .then(responseEvent => {
         let response = JSON.parse(responseEvent.resp);
         log("got Response:");
@@ -195,3 +192,54 @@ function saveEvents(events) {
 
   require("sched").setAlarms(alarms);
 }
+
+function http(url, options) {
+  options = options || {};
+  if (Bangle.httpRequest === undefined) {
+    Bangle.httpRequest = {};
+  }
+  if (options.id === undefined) {
+    // try and create a unique ID
+    do {
+      options.id = Math.random().toString().slice(2);
+    } while (Bangle.httpRequest[options.id] !== undefined);
+  }
+
+  //create the promise
+  let promise = new Promise(function (resolve, reject) {
+    //send the request
+    let req = {
+      t: "http",
+      url: url,
+      id: options.id
+    };
+    if (options.xpath) req.xpath = options.xpath;
+    if (options.method) req.method = options.method;
+    if (options.body) req.body = options.body;
+    if (options.headers) req.headers = options.headers;
+    if (Bluetooth.println) {
+      if (NRF.getSecurityStatus().connected) {
+        Bluetooth.println("");
+        Bluetooth.println(JSON.stringify(req));
+      } else {
+        reject("not connected");
+      }
+    } else {
+      console.log(req);
+    }
+
+    //save the resolve function in the dictionary and create a timeout (30 seconds default)
+    Bangle.httpRequest[options.id] = {
+      r: resolve,
+      j: reject,
+      t: setTimeout(() => {
+        //if after "timeoutMillisec" it still hasn't answered -> reject
+        delete Bangle.httpRequest[options.id];
+        reject("Timeout");
+      }, options.timeout || 30000)
+    };
+  });
+
+  return promise;
+};
+exports.http = http;
