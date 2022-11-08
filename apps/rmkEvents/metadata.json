@@ -5,6 +5,7 @@
   "description": "My Events",
   "icon": "rmkEvents.png",
   "supports": [ "BANGLEJS2" ],
+  "dependencies": {"scheduler":"type"},
   "storage": [
     { "name": "rmkEvents.boot.js", "url": "rmkEvents.boot.js" },
     { "name": "rmkEvents.js", "url": "rmkEvents.js" },
