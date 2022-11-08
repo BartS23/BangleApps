@@ -1,6 +1,6 @@
 
 (function () {
-  E.showPrompt = require("rmkShowPrompt").showPrompt;
+  E.showPrompt = require("rmkEvents").showPrompt;
 
   let _GB = global.GB;
 
