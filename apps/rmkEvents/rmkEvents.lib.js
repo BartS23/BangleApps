@@ -109,8 +109,6 @@ function saveSettings() {
   require("Storage").writeJSON("rmkEvents.json", settings);
 }
 
-Bangle.rmkEvents = undefined;
-
 function setUpdateTimeout(interval) {
   log("setUpdateTimeout: " + (interval - Date.now()));
   if (Bangle.rmkEvents) {
@@ -120,6 +118,36 @@ function setUpdateTimeout(interval) {
 
   Bangle.rmkEvents = setTimeout(update, interval - Date.now());
 }
+
+function saveEvents(events) {
+  events.forEach(event => event.id = `${event.id}_${event.timestamp}`);
+  var alarms = require("sched").getAlarms().filter(alarm => alarm.appid == "rmkEvents");
+  events.forEach(event => {
+    let alarm = alarms.find(alarm => alarm.id == event.id);
+    if (!alarm) {
+      alarm = require("sched").newDefaultAlarm();
+      alarms.push(alarm);
+    }
+
+    let alarmTime = new Date(event.alarm * 1000) - new Date(event.alarm * 1000).setHours(0, 0, 0, 0);
+    alarm.id = event.id;
+    alarm.hidden = true;
+    alarm.js = "load('rmkEvents.js')";
+    alarm.t = alarmTime;
+    alarm.date = new Date(event.alarm * 1000).toISOString().slice(0, 10);
+    alarm.appid = "rmkEvents";
+    alarm.msg = event.title;
+    alarm.timestamp = event.timestamp;
+    alarm.vibrate = "===";
+    alarm.updated = true;
+  });
+  alarms = alarms.filter(alarm => alarm.updated);
+  alarms.forEach(alarm => delete alarm.updated);
+
+  require("sched").setAlarms(alarms);
+}
+
+Bangle.rmkEvents = undefined;
 
 function update() {
   loadSettings();
@@ -165,86 +193,7 @@ function update() {
 }
 exports.update = update;
 
-function saveEvents(events) {
-  events.forEach(event => event.id = `${event.id}_${event.timestamp}`);
-  var alarms = require("sched").getAlarms().filter(alarm => alarm.appid == "rmkEvents");
-  events.forEach(event => {
-    let alarm = alarms.find(alarm => alarm.id == event.id);
-    if (!alarm) {
-      alarm = require("sched").newDefaultAlarm();
-      alarms.push(alarm);
-    }
-
-    let alarmTime = new Date(event.alarm * 1000) - new Date(event.alarm * 1000).setHours(0, 0, 0, 0);
-    alarm.id = event.id;
-    alarm.hidden = true;
-    alarm.js = "load('rmkEvents.js')";
-    alarm.t = alarmTime;
-    alarm.date = new Date(event.alarm * 1000).toISOString().slice(0, 10);
-    alarm.appid = "rmkEvents";
-    alarm.msg = event.title;
-    alarm.timestamp = event.timestamp;
-    alarm.vibrate = "===";
-    alarm.updated = true;
-  });
-  alarms = alarms.filter(alarm => alarm.updated);
-  alarms.forEach(alarm => delete alarm.updated);
-
-  require("sched").setAlarms(alarms);
-}
-
-function http(url, options) {
-  options = options || {};
-  if (Bangle.httpRequest === undefined) {
-    Bangle.httpRequest = {};
-  }
-  if (options.id === undefined) {
-    // try and create a unique ID
-    do {
-      options.id = Math.random().toString().slice(2);
-    } while (Bangle.httpRequest[options.id] !== undefined);
-  }
-
-  //create the promise
-  let promise = new Promise(function (resolve, reject) {
-    //send the request
-    let req = {
-      t: "http",
-      url: url,
-      id: options.id
-    };
-    if (options.xpath) req.xpath = options.xpath;
-    if (options.method) req.method = options.method;
-    if (options.body) req.body = options.body;
-    if (options.headers) req.headers = options.headers;
-    if (Bluetooth.println) {
-      if (NRF.getSecurityStatus().connected) {
-        Bluetooth.println("");
-        Bluetooth.println(JSON.stringify(req));
-      } else {
-        reject("not connected");
-      }
-    } else {
-      console.log(req);
-    }
-
-    //save the resolve function in the dictionary and create a timeout (30 seconds default)
-    Bangle.httpRequest[options.id] = {
-      r: resolve,
-      j: reject,
-      t: setTimeout(() => {
-        //if after "timeoutMillisec" it still hasn't answered -> reject
-        delete Bangle.httpRequest[options.id];
-        reject("Timeout");
-      }, options.timeout || 30000)
-    };
-  });
-
-  return promise;
-};
-exports.http = http;
-
-showPrompt = (function (msg, options) {
+function showPrompt(msg, options) {
   if (!options) options = {};
   if (!options.buttons)
     options.buttons = { "Yes": true, "No": false };
@@ -367,11 +316,11 @@ showPrompt = (function (msg, options) {
           e.y > b.y1 && e.y < b.y2) {
           draw(i); // highlighted button
           g.flip(); // write to screen
-          E.showPrompt(); // remove
+          showPrompt(); // remove
           resolve(options.buttons[btns[i]]);
         }
       });
     });
   });
-});
+}
 exports.showPrompt = showPrompt;
