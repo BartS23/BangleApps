@@ -3,7 +3,7 @@
   "name": "RMK Android Integration",
   "type": "bootloader",
   "shortName": "RMKAndroid",
-  "version": "0.16",
+  "version": "0.17",
   "description": "My android",
   "icon": "rmkAndroid.png",
   "tags": "tool,system,messages,notifications,gadgetbridge",
