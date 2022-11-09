@@ -1,0 +1,15 @@
+{
+  "id": "rmkAndroid",
+  "name": "RMK Android Integration",
+  "shortName": "RMKAndroid",
+  "version": "0.16",
+  "description": "My android",
+  "icon": "rmkAndroid.png",
+  "tags": "tool,system,messages,notifications,gadgetbridge",
+  "supports": ["BANGLEJS","BANGLEJS2"],
+  "readme": "README.md",
+  "storage": [
+    {"name":"rmkAndroid.boot.js","url":"rmkAndroid.boot.js"}
+  ],
+  "sortorder": -8
+}
