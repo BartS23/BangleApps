@@ -1,6 +1,7 @@
 {
   "id": "rmkAndroid",
   "name": "RMK Android Integration",
+  "type": "bootloader",
   "shortName": "RMKAndroid",
   "version": "0.16",
   "description": "My android",
