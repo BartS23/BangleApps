@@ -21,12 +21,11 @@ function showEvent(event) {
   delete time.d;
   let startTime = require("time_utils").formatTime(time);
 
-  require("rmkEvents").showPrompt(startTime + "\n" + duration, {
+  E.showPrompt(startTime + "\n" + duration, {
     title: event.msg,
     buttons: {
       "Ok": true
-    },
-    border: { color: '#f00' }
+    }
   }).then(function (sleep) {
     buzzCount = 0;
     updateEvent(false);
