@@ -1,7 +1,7 @@
 {
   "id": "rmkEvents",
   "name": "RMK Events",
-  "version": "0.03",
+  "version": "0.04",
   "description": "My Events",
   "icon": "rmkEvents.png",
   "supports": [ "BANGLEJS2" ],
