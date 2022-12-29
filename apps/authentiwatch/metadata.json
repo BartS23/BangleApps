@@ -4,7 +4,7 @@
   "shortName": "AuthWatch",
   "icon": "app.png",
   "screenshots": [{"url":"screenshot1.png"},{"url":"screenshot2.png"},{"url":"screenshot3.png"},{"url":"screenshot4.png"}],
-  "version": "0.07",
+  "version": "0.08",
   "description": "Google Authenticator compatible tool.",
   "tags": "tool",
   "interface": "interface.html",
@@ -13,6 +13,7 @@
   "allow_emulator": true,
   "storage": [
     {"name":"authentiwatch.app.js","url":"app.js"},
+    {"name":"authentiwatch.lib.js","url":"lib.js"},
     {"name":"authentiwatch.img","url":"app-icon.js","evaluate":true}
   ],
   "data": [{"name":"authentiwatch.json"}]
