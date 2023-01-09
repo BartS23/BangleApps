@@ -1,14 +1,14 @@
 {
   "id": "rmkEvents",
   "name": "RMK Events",
-  "version": "0.04",
+  "version": "0.05",
   "description": "My Events",
   "icon": "rmkEvents.png",
   "supports": [ "BANGLEJS2" ],
   "dependencies": {"scheduler":"type", "rmkAndroid":"app"},
   "storage": [
     { "name": "rmkEvents.boot.js", "url": "rmkEvents.boot.js" },
-    { "name": "rmkEvents.js", "url": "rmkEvents.js" },
+    { "name": "rmkEvents.app.js", "url": "rmkEvents.js" },
     { "name": "rmkEvents.img", "url": "rmkEvents-icon.js", "evaluate": true },
     { "name": "rmkEvents", "url": "rmkEvents.lib.js" }
   ],

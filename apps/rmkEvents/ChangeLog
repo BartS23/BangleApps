@@ -2,3 +2,4 @@
 0.02: add dependency
 0.03: include own showPrompt
 0.04: remove own showPrompt
+0.05: fix EntryPoint error
