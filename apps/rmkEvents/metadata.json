@@ -14,6 +14,6 @@
   ],
   "data": [
     { "name": "rmkEvents.json" },
-    { "name": "rmkEvents-*.log", "storageFile": true }
+    { "wildcard": "rmkEvents-*.log", "storageFile": true }
   ]
 }
