@@ -8,7 +8,7 @@
   "dependencies": {"scheduler":"type", "rmkAndroid":"app"},
   "storage": [
     { "name": "rmkEvents.boot.js", "url": "rmkEvents.boot.js" },
-    { "name": "rmkEvents.app.js", "url": "rmkEvents.js" },
+    { "name": "rmkEvents.app.js", "url": "rmkEvents.app.js" },
     { "name": "rmkEvents.img", "url": "rmkEvents-icon.js", "evaluate": true },
     { "name": "rmkEvents", "url": "rmkEvents.lib.js" }
   ],
