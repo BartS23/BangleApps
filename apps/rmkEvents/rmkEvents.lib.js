@@ -132,7 +132,7 @@ function saveEvents(events) {
     let alarmTime = new Date(event.alarm * 1000) - new Date(event.alarm * 1000).setHours(0, 0, 0, 0);
     alarm.id = event.id;
     alarm.hidden = true;
-    alarm.js = "load('rmkEvents.js')";
+    alarm.js = "load('rmkEvents.app.js')";
     alarm.t = alarmTime;
     alarm.date = new Date(event.alarm * 1000).toISOString().slice(0, 10);
     alarm.appid = "rmkEvents";

@@ -3,3 +3,4 @@
 0.03: include own showPrompt
 0.04: remove own showPrompt
 0.05: fix EntryPoint error
+0.06: Call correct app js
