@@ -1,4 +1,50 @@
 {
+  let clockInfoItems = require("clock_info").load();
+  let clockInfoMenus;
+  let clockInfoDraw = (itm, info, options) => {
+    g
+      .reset()
+      .setBgColor(options.bg)
+      .setColor(options.fg)
+      .setFont("Vector", 20)
+      .setFontAlign(-1, 0)
+      .clearRect(options.x, options.y, options.x + options.w - 2, options.y + options.h - 1);
+
+    if (options.focus) {
+      g.drawRect(options.x, options.y, options.x + options.w - 2, options.y + options.h - 1);
+    }
+    let itemText;
+    let imgWidth = 0;
+    if (itm.name) {
+      itemText = `${itm.name}: ${info.text}`;
+    } else {
+      itemText = info.text;
+      imgWidth = info.img == null ? 0 : 25;
+    }
+
+    g.drawString(itemText, options.x + imgWidth + 1, options.y + options.h / 2 + 1);
+    if (info.img && imgWidth) {
+      g.drawImage(
+        info.img,
+        options.x,
+        options.y + options.h / 2 - 12);
+    }
+  };
+  let render = (layout) => {
+    if (!clockInfoMenus) {
+      clockInfoMenus = require("clock_info").addInteractive(clockInfoItems, {
+        x: layout.x + 1,
+        y: layout.y,
+        w: layout.w - 1,
+        h: layout.h,
+        draw: clockInfoDraw,
+        bg: g.theme.bg,
+        fg: g.theme.fg
+      });
+      clockInfoMenus.setItem(0, 1);
+    }
+  };
+
   let ClockFace = require("ClockFace");
   let clock = new ClockFace({
     init: function () {
@@ -31,28 +77,15 @@
         },
         { height: 5 },
         {
-          type: "h",
-          halign: -1,
-          c: [{
-            type: "txt",
-            font: "10%",
-            col: "#0f0",
-            label: "Steps: ",
-            id: "stepsText"
-          },
-          { width: 5 },
-          {
-            type: "txt",
-            font: "10%",
-            halign: -1,
-            col: "#0f0",
-            id: "steps",
-            label: "0",
-            fillx: 1
-          }]
+          type: "custom",
+          render: render,
+          id: "clockInfo",
+          fillx: 1,
+          height: 26
         }],
         lazy: true
       });
+      this.layout.render(this.layout.clockInfo);
     },
     update: function (time, changed) {
       if (changed.d) {
@@ -68,8 +101,6 @@
         var m = time.getMinutes().toString();
         var timeText = h.padStart(2, "0") + ":" + m.padStart(2, "0");
         this.layoutRedraw(this.layout, "time", timeText);
-        this.layout.render(this.layout.stepsText);
-        this.layoutRedraw(this.layout, "steps", this.locale.number(Bangle.getHealthStatus("day").steps, 0));
       }
     },
     remove: function () { }
