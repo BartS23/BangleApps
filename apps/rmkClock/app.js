@@ -103,7 +103,7 @@
         this.layoutRedraw(this.layout, "time", timeText);
       }
     },
-    remove: function () { }
+    remove: () => clockInfoMenus.remove()
   });
 
   clock.start();
