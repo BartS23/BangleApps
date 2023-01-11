@@ -65,6 +65,19 @@ function onRefreshMyApps() {
   /* if we're allowed to, send usage stats. We'll only
   actually send if the data has changed */
   sendUsageStats();
+
+  // Update Issue Link
+  btn = document.getElementById("newGithubIssueV2");
+  if (btn) {
+    const urlTemplate = "https://github.com/BartS23/BangleApps/issues/new?template=bangle-bug-report-custom-form.yaml&fwversion={version}&apps={apps}";
+    const version = device.connected ? device.version : "";
+    let apps = (device.appsInstalled || []).map(a => `${a.id} (${a.version})`).join("\n- ");
+    if (apps) {
+      apps = `<details><summary>Apps</summary>\n\n- ${apps}\n</details>`;
+    }
+    
+    btn.href = urlTemplate.replace("{version}", encodeURIComponent(version)).replace("{apps}", encodeURIComponent(apps));
+  }
 }
 
 var submittedUsageInfo = "";
