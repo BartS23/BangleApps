@@ -1,9 +1,9 @@
 {
   let clockInfoItems = require("clock_info").load();
-  let clockInfoMenus;
+  let clockInfoMenu;
   let lockHandler = lock => {
-    if (lock && clockInfoMenus && !(clockInfoMenus.menuA == 0 && clockInfoMenus.menuB == 1)) {
-      clockInfoMenus.setItem(0, 1);
+    if (lock && clockInfoMenu && !(clockInfoMenu.menuA == 0 && clockInfoMenu.menuB == 1)) {
+      clockInfoMenu.setItem(0, 1);
     }
   };
   let clockInfoDraw = (itm, info, options) => {
@@ -36,8 +36,8 @@
     }
   };
   let render = (layout) => {
-    if (!clockInfoMenus) {
-      clockInfoMenus = require("clock_info").addInteractive(clockInfoItems, {
+    if (!clockInfoMenu) {
+      clockInfoMenu = require("clock_info").addInteractive(clockInfoItems, {
         x: layout.x + 1,
         y: layout.y,
         w: layout.w - 1,
@@ -46,7 +46,7 @@
         bg: g.theme.bg,
         fg: g.theme.fg
       });
-      clockInfoMenus.setItem(0, 1);
+      clockInfoMenu.setItem(0, 1);
       Bangle.on("lock", lockHandler);
     }
   };
@@ -110,7 +110,7 @@
       }
     },
     remove: () => {
-      clockInfoMenus.remove();
+      clockInfoMenu.remove();
       Bangle.removeListener(lockHandler);
     }
   });
