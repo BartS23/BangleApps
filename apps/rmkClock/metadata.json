@@ -2,16 +2,25 @@
   "id": "rmkClock",
   "name": "RMK Clock",
   "shortName": "RMK Clock",
-  "version": "0.12",
+  "version": "0.13",
   "description": "RMK Clock",
   "icon": "app.png",
   "type": "clock",
   "tags": "clock",
-  "supports": [ "BANGLEJS2" ],
+  "supports": [
+    "BANGLEJS2"
+  ],
   "allow_emulator": true,
   "readme": "",
   "storage": [
-    { "name": "rmkClock.app.js", "url": "app.js" },
-    { "name": "rmkClock.img", "url": "app-icon.js", "evaluate": true }
+    {
+      "name": "rmkClock.app.js",
+      "url": "app.js"
+    },
+    {
+      "name": "rmkClock.img",
+      "url": "app-icon.js",
+      "evaluate": true
+    }
   ]
 }

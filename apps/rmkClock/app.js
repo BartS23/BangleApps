@@ -1,6 +1,11 @@
 {
   let clockInfoItems = require("clock_info").load();
   let clockInfoMenus;
+  let lockHandler = lock => {
+    if (lock && clockInfoMenus && !(clockInfoMenus.menuA == 0 && clockInfoMenus.menuB == 1)) {
+      clockInfoMenus.setItem(0, 1);
+    }
+  };
   let clockInfoDraw = (itm, info, options) => {
     g
       .reset()
@@ -42,6 +47,7 @@
         fg: g.theme.fg
       });
       clockInfoMenus.setItem(0, 1);
+      Bangle.on("lock", lockHandler);
     }
   };
 
@@ -103,7 +109,10 @@
         this.layoutRedraw(this.layout, "time", timeText);
       }
     },
-    remove: () => clockInfoMenus.remove()
+    remove: () => {
+      clockInfoMenus.remove();
+      Bangle.removeListener(lockHandler);
+    }
   });
 
   clock.start();
