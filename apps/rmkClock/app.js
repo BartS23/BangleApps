@@ -111,7 +111,7 @@
     },
     remove: () => {
       clockInfoMenu.remove();
-      Bangle.removeListener(lockHandler);
+      Bangle.removeListener("lock", lockHandler);
     }
   });
 

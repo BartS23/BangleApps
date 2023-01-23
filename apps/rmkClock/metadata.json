@@ -2,7 +2,7 @@
   "id": "rmkClock",
   "name": "RMK Clock",
   "shortName": "RMK Clock",
-  "version": "0.13",
+  "version": "0.14",
   "description": "RMK Clock",
   "icon": "app.png",
   "type": "clock",
