@@ -2,7 +2,7 @@
   "id": "rmkClock",
   "name": "RMK Clock",
   "shortName": "RMK Clock",
-  "version": "0.14",
+  "version": "0.15",
   "description": "RMK Clock",
   "icon": "app.png",
   "type": "clock",
@@ -10,6 +10,9 @@
   "supports": [
     "BANGLEJS2"
   ],
+  "dependencies": {
+    "clock_info": "module"
+  },
   "allow_emulator": true,
   "readme": "",
   "storage": [

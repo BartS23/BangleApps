@@ -5,3 +5,4 @@
 0.12: fix memory leak
 0.13: reset clockInfo on lock
 0.14: fix removeListener
+0.15: Use clock_info module as an app
