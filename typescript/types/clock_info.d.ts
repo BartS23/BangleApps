@@ -20,7 +20,7 @@ declare module ClockInfo {
       hasRange: true,
       get(): RangeItem,
     } | {
-      hasRange: false,
+      hasRange?: false,
       get(): Item,
     }
   );
@@ -44,6 +44,7 @@ declare module ClockInfo {
     w: number,
     h: number,
     draw(itm: MenuItem, info: Item, options: InteractiveOptions): void,
+    app?: string, // used to remember clock_info locations, per app
   };
 
   type InteractiveOptions =
