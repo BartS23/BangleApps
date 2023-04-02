@@ -32,7 +32,7 @@ function showEvent(event) {
   });
 
   function updateEvent(sleep) {
-    if (sleep && event.t < event.timestamp) {
+    if (sleep && event.t <= (event.timestamp * 1000 - Date.now())) {
       if (event.ot === undefined) {
         event.ot = event.t;
       }
