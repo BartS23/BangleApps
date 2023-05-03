@@ -6,7 +6,7 @@
   "screenshots": [{"url":"screenshot1.png"},{"url":"screenshot2.png"},{"url":"screenshot3.png"},{"url":"screenshot4.png"}],
   "version": "0.09",
   "description": "Google Authenticator compatible tool.",
-  "tags": "tool",
+  "tags": "tool,clkinfo",
   "interface": "interface.html",
   "supports": ["BANGLEJS", "BANGLEJS2"],
   "readme": "README.md",
