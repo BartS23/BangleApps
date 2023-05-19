@@ -173,6 +173,17 @@
           gbSend({ t: "act", stp: steps-lastSteps, hrm: lastBPM });
           lastSteps = steps;
         }, event.int*1000);
+      },
+      "nav": function() {
+        event.id="nav";
+        if (event.instr) {
+          event.t="add";
+          event.src="maps"; // for the icon
+          event.title="Navigation";
+        } else {
+          event.t="remove";
+        }
+        require("messages").pushMessage(event);
       }
     };
     var h = HANDLERS[event.t];
