@@ -6,7 +6,7 @@
   "description": "RMK Clock",
   "icon": "app.png",
   "type": "clock",
-  "tags": "clock",
+  "tags": "clock,clkinfo",
   "supports": [
     "BANGLEJS2"
   ],
