@@ -10,6 +10,7 @@ type FolderList = Array<string>;
 type Config = {
     showClocks: boolean,            // Whether clocks are shown
     showLaunchers: boolean,         // Whether launchers are shown
+    disableVibration: boolean,      // Whether vibration is disabled
     hidden: Array<String>,          // IDs of apps to explicitly hide
     display: {
         rows: number,               // Display an X by X grid of apps
@@ -21,7 +22,6 @@ type Config = {
     apps: {                         // Saved info for each app
         [key: string]: {
             folder: FolderList,     // Folder path
-            fast: boolean,          // Whether the app should be fast launched
             nagged: boolean         // Whether the app's fast launch setting was configured
         }
     },

@@ -115,7 +115,7 @@
         // Get the icon and text, skip if the space is empty. Always draw text for folders even if disabled
         switch (entry.type) {
           case 'app':
-            let app: AppInfo = storage.readJSON(entry.id + '.info', false);
+            let app = storage.readJSON(entry.id + '.info', false) as AppInfo;
             icon = storage.read(app.icon!)!;
             text = app.name;
             empty = false;
@@ -185,12 +185,12 @@
     let entry: GridEntry = grid[x]![y]!;
     switch (entry.type) {
       case "app":
-        Bangle.buzz();
-        let infoFile = storage.readJSON(entry.id + '.info', false);
+        buzz();
+        let infoFile = storage.readJSON(entry.id + '.info', false) as AppInfo;
         load(infoFile.src);
         break;
       case "folder":
-        Bangle.buzz();
+        buzz();
         resetTimeout();
         page = 0;
         folderPath.push(entry.id);
@@ -221,13 +221,13 @@
     } else if (ud == 1) {
       resetTimeout();
       if (page == 0) {
-        Bangle.buzz(200);
+        buzz(200);
         return;
       } else page--;
     } else if (ud == -1) {
       resetTimeout();
       if (page == nPages - 1) {
-        Bangle.buzz(200);
+        buzz(200);
         return;
       } else page++;
     }
@@ -240,7 +240,7 @@
    * Go back up a level. If already at the root folder, exit the launcher
    */
   let onBackButton = () => {
-    Bangle.buzz();
+    buzz();
     if (folderPath.length == 0)
       Bangle.showClock();
     else {
@@ -252,6 +252,10 @@
     }
   }
 
+  /**
+   * Vibrate the watch if vibration is enabled
+   */
+  let buzz = config.disableVibration ? () => {} : Bangle.buzz;
 
   Bangle.loadWidgets();
   Bangle.drawWidgets();
