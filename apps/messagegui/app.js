@@ -70,6 +70,8 @@ var onMessagesModified = function(type,msg) {
     if (msg.state && msg.state!="play") openMusic = false; // no longer playing music to go back to
     if ((active!=undefined) && (active!="list") && (active!="music")) return; // don't open music over other screens (but do if we're in the main menu)
   }
+  if (msg && msg.id=="nav" && msg.t=="modify" && active!="map")
+    return; // don't show an updated nav message if we're just in the menu
   showMessage(msg&&msg.id);
 };
 Bangle.on("message", onMessagesModified);
@@ -414,8 +416,9 @@ function checkMessages(options) {
     if (!options.clockIfNoMsg) return E.showPrompt(/*LANG*/"No Messages",{
       title:/*LANG*/"Messages",
       img:require("heatshrink").decompress(atob("kkk4UBrkc/4AC/tEqtACQkBqtUDg0VqAIGgoZFDYQIIM1sD1QAD4AIBhnqA4WrmAIBhc6BAWs8AIBhXOBAWz0AIC2YIC5wID1gkB1c6BAYFBEQPqBAYXBEQOqBAnDAIQaEnkAngaEEAPDFgo+IKA5iIOhCGIAFb7RqAIGgtUBA0VqobFgNVA")),
-      buttons : {/*LANG*/"Ok":1}
-    }).then(() => { load() });
+      buttons : {/*LANG*/"Ok":1},
+      back: () => load()
+    }).then(() => load());
     return load();
   }
   // we have >0 messages

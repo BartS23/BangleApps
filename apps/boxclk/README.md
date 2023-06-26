@@ -18,11 +18,11 @@ Each box can be customized extensively via a simple JSON configuration. You can 
 
 ## Config File Structure
 
-Here's what an example configuration might look like:
+Here's an example of what a configuration might contain:
 
 ```
 {
-  "customBox": { //
+  "customBox": {
     "string": "Your text here",
     "font": "CustomFont", // Custom fonts must be removed in setUI
     "fontSize": 1,
@@ -34,18 +34,27 @@ Here's what an example configuration might look like:
     "yPadding": -4,
     "xOffset": 0,
     "yOffset": 3,
-    "boxPos": { "x": 0.5, "y": 0.5 }
+    "boxPos": { "x": 0.5, "y": 0.5 },
+    "prefix": "", // Adds a string to the beginning of the main string
+    "suffix": "", // Adds a string to the end of the main string
+    "disableSuffix": true, // Use to remove DayOfMonth suffix only
+    "short": false, // Use long format of time, meridian, date, or DoW
+    "shortMonth": false // Use long format of month within date
+
   },
   "bg": { // Can also be removed for no background
     "img": "YourImageName.img"
   }
 }
 ```
+
 __Breakdown of Parameters:__
 
-* **string:** The text string to be displayed inside the box.
+* **Box Name:** The name of your text box. Box Clock includes functional support for "time", "date", "meridian" (AM/PM), "dow" (Day of Week), "batt" (Battery), and "step" (Step count). You can add additional custom boxes with unique titles.
 
-* **font:** The font name given to g.setFont()
+* **string:** The text string to be displayed inside the box. This is only required for custom Box Names.
+
+* **font:** The font name given to g.setFont().
 
 * **fontSize:** The size of the font.
 
@@ -63,13 +72,38 @@ __Breakdown of Parameters:__
 
 * **boxPos:** Initial position of the box on the screen. Values are fractions of the screen width (x) and height (y), so { "x": 0.5, "y": 0.5 } would be in the middle of the screen.
 
+* **prefix:** Adds a string to the beginning of the main string. For example, you can set "prefix": "Steps: " to display "Steps: 100" for the step count.
+
+* **suffix:** Adds a string to the end of the main string. For example, you can set "suffix": "%" to display "80%" for the battery percentage.
+
+* **disableSuffix:** Applies only to the "date" box. Set to true to disable the DayOfMonth suffix. This is used to remove the "st","nd","rd", or "th" from the DayOfMonth number.
+
+* **short:** Set to false to get the long format value of time, meridian, date, or DayOfWeek. Short formats are used by default if not specified.
+
+* **shortMonth:** Applies only to the "date" box. Set to false to get the long format value of the month. Short format is used by default if not specified.
+
 * **bg:** This specifies a custom background image, with the img property defining the name of the image file on the Bangle.js storage.
 
 ## Multiple Configurations
 
-The app includes a settings menu that allows you to switch between different configurations. The selected configuration is stored in the default JSON file alongside the other configuration data using the selectedConfig property.
+__Settings Menu:__
 
-If the selectedConfig property is not present or is set to 0, the app will use the default configuration. To create additional configurations, create separate JSON files with the naming convention boxclk-N.json, where N is the configuration number. The settings menu will list all available configurations.
+The app includes a settings menu that allows you to switch between different configurations. The selected configuration is stored as a number in the default `boxclk.json` file using the selectedConfig property.
+
+If the selectedConfig property is not present or is set to 0, the app will use the default configuration. To create additional configurations, create separate JSON files with the naming convention `boxclk-N.json`, where `N` is the configuration number. The settings menu will list all available configurations.
+
+## Example Configs:
+
+To easily try out other configs, download and place the JSON configs and/or background images from below onto your Bangle.js storage. Then go to the Box Clock settings menu to select the new config number. You can also modify them to suit your personal preferences.
+
+__Space Theme:__
+
+- **Config:** [boxclk-1.json](https://github.com/espruino/BangleApps/tree/master/apps/boxclk/boxclk-1.json)
+- **Background:** [boxclk.space.img](https://github.com/espruino/BangleApps/tree/master/apps/boxclk/boxclk.space.img) ([Original Source](https://www.pixilart.com/art/fallin-from-outer-space-sr2e0c1a705749a))
+
+__System Color Theme:__
+
+- **Config:** [boxclk-2.json](https://github.com/espruino/BangleApps/tree/master/apps/boxclk/boxclk-2.json)
 
 ## Compatibility
 
