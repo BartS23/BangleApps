@@ -4,6 +4,7 @@
   * 1. Module dependencies and initial configurations
   * ---------------------------------------------------------------
   */
+
   let storage = require("Storage");
   let locale = require("locale");
   let widgets = require("widget_utils");
@@ -30,10 +31,10 @@
   * 2. Graphical and visual configurations
   * ---------------------------------------------------------------
   */
+
   let w = g.getWidth();
   let h = g.getHeight();
   let totalWidth, totalHeight;
-  let enableSuffix = true;
   let drawTimeout;
 
   /**
@@ -41,6 +42,7 @@
   * 3. Touchscreen Handlers
   * ---------------------------------------------------------------
   */
+
   let touchHandler;
   let dragHandler;
   let movementDistance = 0;
@@ -50,6 +52,7 @@
   * 4. Font loading function
   * ---------------------------------------------------------------
   */
+
   let loadCustomFont = function() {
     Graphics.prototype.setFontBrunoAce = function() {
       // Actual height 23 (24 - 2)
@@ -67,6 +70,7 @@
   * 5. Initial settings of boxes and their positions
   * ---------------------------------------------------------------
   */
+
   for (let key in boxesConfig) {
     if (key === 'bg' && boxesConfig[key].img) {
       bgImage = storage.read(boxesConfig[key].img);
@@ -165,13 +169,18 @@
 
   /**
   * ---------------------------------------------------------------
-  * 7. Date and time related functions
+  * 7. String forming helper functions
   * ---------------------------------------------------------------
   */
-  let getDate = function() {
+
+  let isBool = function(val, defaultVal) {
+    return typeof val !== 'undefined' ? Boolean(val) : defaultVal;
+  };
+
+  let getDate = function(short, shortMonth, disableSuffix) {
     const date = new Date();
     const dayOfMonth = date.getDate();
-    const month = locale.month(date, 1);
+    const month = shortMonth ? locale.month(date, 1) : locale.month(date, 0);
     const year = date.getFullYear();
     let suffix;
     if ([1, 21, 31].includes(dayOfMonth)) {
@@ -183,12 +192,24 @@
     } else {
       suffix = "th";
     }
-    let dayOfMonthStr = enableSuffix ? dayOfMonth + suffix : dayOfMonth;
-    return month + " " + dayOfMonthStr + ", " + year;
+    let dayOfMonthStr = disableSuffix ? dayOfMonth : dayOfMonth + suffix;
+    return month + " " + dayOfMonthStr + (short ? '' : (", " + year)); // not including year for short version
   };
 
-  let getDayOfWeek = function(date) {
-    return locale.dow(date, 0);
+  let getDayOfWeek = function(date, short) {
+    return locale.dow(date, short ? 1 : 0);
+  };
+
+  locale.meridian = function(date, short) {
+    let hours = date.getHours();
+    let meridian = hours >= 12 ? 'PM' : 'AM';
+    return short ? meridian[0] : meridian;
+  };
+
+  let modString = function(boxItem, data) {
+    let prefix = boxItem.prefix || '';
+    let suffix = boxItem.suffix || '';
+    return prefix + data + suffix;
   };
 
   /**
@@ -196,50 +217,69 @@
   * 8. Main draw function
   * ---------------------------------------------------------------
   */
-  let draw = function(boxes) {
-    date = new Date();
-    g.clear();
-    if (bgImage) {
-      g.drawImage(bgImage, 0, 0);
-    }
-    if (boxes.time) {
-      boxes.time.string = locale.time(date, 1);
-    }
-    if (boxes.date) {
-      boxes.date.string = getDate();
-    }
-    if (boxes.dow) {
-      boxes.dow.string = getDayOfWeek(date);
-    }
-    if (boxes.batt) {
-      boxes.batt.string = E.getBattery() + "%";
-    }
-    boxKeys.forEach((boxKey) => {
-      let boxItem = boxes[boxKey];
-      calcBoxSize(boxItem);
-      const pos = calcBoxPos(boxKey);
-      if (isDragging[boxKey]) {
-        g.setColor(boxItem.border);
-        g.drawRect(pos.x1, pos.y1, pos.x2, pos.y2);
+
+  let draw = (function() {
+    let updatePerMinute = true; // variable to track the state of time display
+
+    return function(boxes) {
+      date = new Date();
+      g.clear();
+      if (bgImage) {
+        g.drawImage(bgImage, 0, 0);
       }
-      g.drawString(
-        boxItem,
-        boxItem.string,
-        boxPos[boxKey].x +  boxItem.xOffset,
-        boxPos[boxKey].y +  boxItem.yOffset
-      );
-    });
-    if (!Object.values(isDragging).some(Boolean)) {
-      if (drawTimeout) clearTimeout(drawTimeout);
-      drawTimeout = setTimeout(() => draw(boxes), 60000 - (Date.now() % 60000));
-    }
-  };
+      if (boxes.time) {
+        boxes.time.string = modString(boxes.time, locale.time(date, isBool(boxes.time.short, true) ? 1 : 0));
+        updatePerMinute = isBool(boxes.time.short, true);
+      }
+      if (boxes.meridian) {
+        boxes.meridian.string = modString(boxes.meridian, locale.meridian(date, isBool(boxes.meridian.short, true)));
+      }
+      if (boxes.date) {
+        boxes.date.string = (
+          modString(boxes.date,
+          getDate(isBool(boxes.date.short, true),
+          isBool(boxes.date.shortMonth, true),
+          isBool(boxes.date.disableSuffix, false)
+        )));
+      }
+      if (boxes.dow) {
+        boxes.dow.string = modString(boxes.dow, getDayOfWeek(date, isBool(boxes.dow.short, true)));
+      }
+      if (boxes.batt) {
+        boxes.batt.string = modString(boxes.batt, E.getBattery());
+      }
+      if (boxes.step) {
+        boxes.step.string = modString(boxes.step, Bangle.getStepCount());
+      }
+      boxKeys.forEach((boxKey) => {
+        let boxItem = boxes[boxKey];
+        calcBoxSize(boxItem);
+        const pos = calcBoxPos(boxKey);
+        if (isDragging[boxKey]) {
+          g.setColor(boxItem.border);
+          g.drawRect(pos.x1, pos.y1, pos.x2, pos.y2);
+        }
+        g.drawString(
+          boxItem,
+          boxItem.string,
+          boxPos[boxKey].x +  boxItem.xOffset,
+          boxPos[boxKey].y +  boxItem.yOffset
+        );
+      });
+      if (!Object.values(isDragging).some(Boolean)) {
+        if (drawTimeout) clearTimeout(drawTimeout);
+        let interval = updatePerMinute ? 60000 - (Date.now() % 60000) : 1000;
+        drawTimeout = setTimeout(() => draw(boxes), interval);
+      }
+    };
+  })();
 
   /**
   * ---------------------------------------------------------------
   * 9. Helper function for touch event
   * ---------------------------------------------------------------
   */
+
   let touchInText = function(e, boxItem, boxKey) {
     calcBoxSize(boxItem);
     const pos = calcBoxPos(boxKey);
@@ -264,6 +304,7 @@
   * 10. Setup function to configure event handlers
   * ---------------------------------------------------------------
   */
+
   let setup = function() {
     // ------------------------------------
     // Define the touchHandler function
@@ -311,6 +352,8 @@
     // Define the dragHandler function
     // ------------------------------------
     dragHandler = function(e) {
+      // Check if any box is being dragged
+      if (!Object.values(isDragging).some(Boolean)) return;
       // Calculate the movement distance
       movementDistance += Math.abs(e.dx) + Math.abs(e.dy);
       // Check if the movement distance exceeds a threshold
@@ -364,6 +407,7 @@
   * 11. Main execution part
   * ---------------------------------------------------------------
   */
+
   Bangle.loadWidgets();
   widgets.swipeOn();
   modSetColor();
