@@ -6,11 +6,27 @@ var mapVisible = false;
 var hasScrolled = false;
 var settings = require("Storage").readJSON("openstmap.json",1)||{};
 var plotTrack;
+let checkMapPos = false; // Do we need to check the if the coordinates we have are valid
+
+if (settings.lat !== undefined && settings.lon !== undefined && settings.scale !== undefined) {
+  // restore last view
+  m.lat = settings.lat;
+  m.lon = settings.lon;
+  m.scale = settings.scale;
+  checkMapPos = true;
+}
 
 // Redraw the whole page
 function redraw() {
   g.setClipRect(R.x,R.y,R.x2,R.y2);
-  m.draw();
+  const count = m.draw();
+  if (checkMapPos && count === 0) {
+    // no map at these coordinates, lets try again with first map
+    m.lat = m.map.lat;
+    m.lon = m.map.lon;
+    m.scale = m.map.scale;
+    m.draw();
+  }
   drawPOI();
   drawMarker();
   // if track drawing is enabled...
@@ -45,7 +61,7 @@ function drawPOI() {
     g.fillRect(p.x-sz, p.y-sz, p.x+sz, p.y+sz);
     g.setColor(0,0,0);
     g.drawString(wp.name, p.x, p.y);
-    print(wp.name);
+    //print(wp.name);
   })
 }
 
@@ -59,23 +75,78 @@ function drawMarker() {
 
 Bangle.on('GPS',function(f) {
   fix=f;
-  if (HASWIDGETS) WIDGETS["sats"].draw(WIDGETS["sats"]);
+  if (HASWIDGETS && WIDGETS["sats"]) WIDGETS["sats"].draw(WIDGETS["sats"]);
   if (mapVisible) drawMarker();
 });
 Bangle.setGPSPower(1, "app");
 
 if (HASWIDGETS) {
   Bangle.loadWidgets();
-  WIDGETS["sats"] = { area:"tl", width:48, draw:w=>{
-    var txt = (0|fix.satellites)+" Sats";
-    if (!fix.fix) txt += "\nNO FIX";
-      g.reset().setFont("6x8").setFontAlign(0,0)
-        .drawString(txt,w.x+24,w.y+12);
-    }
-  };
+  if (!WIDGETS["gps"]) { // one GPS Widget is enough
+    WIDGETS["sats"] = { area:"tl", width:24, draw:w=>{
+      var sats = 0|fix.satellites;
+      g.reset().clearRect(w.x,w.y,w.x+23,w.y+23).           drawImage(atob("EhPCAP//vmU0Cv++BUAAAANVQAAANVUAAANVVSoA/VVWqA/VqqqA/1VVoA/9VVkAP/VVlAP/1VVAP/9VVQD//WVUA//2VUA//9VUAX//1UBV///0BVX//ABVVAAABVVAAAA="), w.x,w.y+5); // 18x19
+      if (fix.fix) g.setFont("6x8").setFontAlign(1,-1).drawString(sats,w.x+23,w.y);
+      else g.setFont("4x6:2").setColor("#f00").setFontAlign(1,-1).drawString("X",w.x+23,w.y);
+    }};
+  }
   Bangle.drawWidgets();
 }
 R = Bangle.appRect;
+
+function writeSettings() {
+  settings.lat = m.lat;
+  settings.lon = m.lon;
+  settings.scale = m.scale;
+  require("Storage").writeJSON("openstmap.json",settings);
+}
+
+function showMenu() {
+  if (plotTrack && plotTrack.stop)
+    plotTrack.stop();
+  mapVisible = false;
+  var menu = {
+    "":{title:/*LANG*/"Map"},
+    "< Back": ()=> showMap(),
+  };
+  // If we have a GPS fix, add a menu item to center it
+  if (fix.fix) menu[/*LANG*/"Center GPS"]=() =>{
+    m.lat = fix.lat;
+    m.lon = fix.lon;
+    showMap();
+  };
+  menu = Object.assign(menu, {
+  /*LANG*/"Zoom In": () =>{
+    m.scale /= 2;
+    showMap();
+  },
+  /*LANG*/"Zoom Out": () =>{
+    m.scale *= 2;
+    showMap();
+  },
+  /*LANG*/"Draw Track": {
+    value : !!settings.drawTrack,
+    onchange : v => { settings.drawTrack=v; writeSettings(); }
+  },
+  /*LANG*/"Center Map": () =>{
+    m.lat = m.map.lat;
+    m.lon = m.map.lon;
+    m.scale = m.map.scale;
+    showMap();
+  }
+  });
+  // If we have the recorder widget, add a menu item to start/stop recording
+  if (WIDGETS.recorder) {
+    menu[/*LANG*/"Record"] = {
+      value : WIDGETS.recorder.isRecording(),
+      onchange : isOn => {
+        E.showMessage(/*LANG*/"Please Wait...");
+        WIDGETS.recorder.setRecording(isOn).then(showMap);
+      }
+    };
+  }
+  E.showMenu(menu);
+}
 
 function showMap() {
   mapVisible = true;
@@ -93,36 +164,10 @@ function showMap() {
       hasScrolled = false;
       redraw();
     }
-  }, btn: btn=>{
-    if (plotTrack && plotTrack.stop) plotTrack.stop();
-    mapVisible = false;
-    var menu = {"":{title:"Map"},
-    "< Back": ()=> showMap(),
-    /*LANG*/"Zoom In": () =>{
-      m.scale /= 2;
-      showMap();
-    },
-    /*LANG*/"Zoom Out": () =>{
-      m.scale *= 2;
-      showMap();
-    },
-    /*LANG*/"Draw Track": {
-      value : !!settings.drawTrack,
-      onchange : v => { settings.drawTrack=v; require("Storage").writeJSON("openstmap.json",settings); }
-    },
-    /*LANG*/"Center Map": () =>{
-      m.lat = m.map.lat;
-      m.lon = m.map.lon;
-      m.scale = m.map.scale;
-      showMap();
-    }};
-    if (fix.fix) menu[/*LANG*/"Center GPS"]=() =>{
-      m.lat = fix.lat;
-      m.lon = fix.lon;
-      showMap();
-    };
-    E.showMenu(menu);
-  }});
+  }, btn: () => showMenu() });
 }
 
 showMap();
+
+// Write settings on exit via button
+setWatch(() => writeSettings(), BTN, { repeat: true, edge: "rising" });
