@@ -145,6 +145,7 @@ function saveEvents(events) {
   alarms.forEach(alarm => delete alarm.updated);
 
   require("sched").setAlarms(alarms);
+  require("sched").reload();
 }
 
 Bangle.rmkEvents = undefined;
