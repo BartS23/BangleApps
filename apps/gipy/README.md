@@ -19,7 +19,7 @@ It provides the following features :
 - display a local map around you, downloaded from openstreetmap
 - detects and buzzes if you leave the path
 - (optional) buzzes before sharp turns
-- (optional) buzzes before waypoints 
+- (optional) buzzes before waypoints
 (for example when you need to turn in https://mapstogpx.com/)
 - display instant / average speed
 - display distance to next point
@@ -114,17 +114,21 @@ slopes between path points. Don't expect to see small bumps on the road.
 Few settings for now (feel free to suggest me more) :
 
 - buzz on turns : should the watch buzz when reaching a waypoint ?
-- disable bluetooth : turn bluetooth off completely to try to save some power. 
+- disable bluetooth : turn bluetooth off completely to try to save some power.
 - lost distance : at which distance from path are you considered to be lost ?
 - wake-up speed : if you drive below this speed powersaving will disable itself
 - active-time : how long (in seconds) the screen should be turned on if activated before going back to sleep.
 - brightness : how bright should screen be ? (by default 0.5, again saving power)
 - power lcd off (disabled by default): turn lcd off when inactive to save power. the watch will wake up when reaching points,
 when you touch the screen and when speed is below 13km/h.
+- powersave by default: when gipy starts is powersaving activated ? (see below)
 
 ### Powersaving
 
 Starting with release 0.20 we experiment with power saving.
+
+By default, powersaving is **disabled**. You can turn it on in the menu by checking the powersaving box.
+You can also change the default choice in the app settings (*powersave by default* setting).
 
 There are now two display modes :
 
@@ -133,13 +137,14 @@ There are now two display modes :
 
 The algorithm works in the following ways :
 
-- some events will *activate* : the display will turn *active* 
+- some events will *activate* : the display will turn *active*
 - if no activation event occur for at least 10 seconds (or *active-time* setting) we switch back to *inactive*
 
 Activation events are the following :
 
 - you are near (< 100m) the next point on path
 - you are slow (< *wake-up speed* setting (13 km/h by default))
+- you are lost
 - you press the button / touch the screen
 
 
@@ -167,8 +172,8 @@ I had to go back uphill by quite a distance.
 
 Feel free to give me feedback : is it useful for you ? what other features would you like ?
 
-If you want to raise issues the main repository is [https://github.com/wagnerf42/BangleApps](here) and
-the rust code doing the actual map computations is located [https://github.com/wagnerf42/gps](here).
+If you want to raise issues the main repository is [here](https://github.com/wagnerf42/BangleApps) and
+the rust code doing the actual map computations is located [here](https://github.com/wagnerf42/gps).
 You can try the cutting edge version at [https://wagnerf42.github.io/BangleApps/](https://wagnerf42.github.io/BangleApps/)
 
 frederic.wagner@imag.fr
