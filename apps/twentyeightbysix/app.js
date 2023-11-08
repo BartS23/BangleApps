@@ -13,27 +13,27 @@ const weirdAwakeHours = 19;
 const weirdSleepHours = 9;
 
 const normalDayWidth = HARDWARE_VERSION == 1 ? 24: 28;
-const normalWeekDayHeight = HARDWARE_VERSION == 1 ? 10: 11;
-const normalDayBoxHeight = HARDWARE_VERSION == 1 ? 9: 5;
-const normalSleepDayHeight = 28;
+const normalWeekDayHeight = HARDWARE_VERSION == 1 ? 10: 9;
+const normalDayBoxHeight = HARDWARE_VERSION == 1 ? 9: 4;
+const normalSleepDayHeight = HARDWARE_VERSION == 1 ? 28: 27;
 const normalAwakeHours = 15;
 const normalSleepHours = 9;
 
 const timeSetHeight = HARDWARE_VERSION == 1 ? 30: 34;
 const timeSetDistance = HARDWARE_VERSION == 1 ? 50: 29;
 
-const backgroundColor = "#2c2e3a";
+const backgroundColor = HARDWARE_VERSION == 1 ? "#2c2e3a": "#000000";
 const mainTextColor = "#FFFFFF";
-const watchColor = "#aaaaaa";
+const watchColor = HARDWARE_VERSION == 1 ? "#aaaaaa": "#FFFFFF";
 
-const sleepTextColor = "#000000";
-const sleepBlockColor = "#D8D8D8";
+const sleepTextColor = "#FFFFFF";
+const sleepBlockColor = HARDWARE_VERSION == 1 ? "#D8D8D8": "#000000";
 
 const awakeTextColor = "#000000";
 const awakeBlockColor = "#FFFFFF";
 
 const dayTextColor = "#FFFFFF";
-const dayBlockColor = "#2c2e3a";
+const dayBlockColor = HARDWARE_VERSION == 1 ? "#2c2e3a": "#000000";
 
 const quotes = [
   ["", "Drop the", "ancient", "way of", "sleeping", ""],
@@ -403,24 +403,26 @@ function drawClockPointer() {
     middle, circleBottom + 15
   ]);
 
-  g.fillPoly([
-    middle, circleTop,
-    middle - 25, circleTop + 5,
-    middle - 40, circleTop + 16,
-    middle - 10, circleTop - 5,
-    middle - 3, circleTop - 10,
-    middle, circleTop - 15
-  ]);
-
-  var circleTopRightY = normalSleepDayHeight + 29;
-  g.fillPoly([
-    middle, circleTop,
-    middle + 25, circleTop + 5,
-    middle + 40, circleTop + 16,
-    middle + 10, circleTop - 5,
-    middle + 3, circleTop - 10,
-    middle, circleTop - 15
-  ]);
+  if (HARDWARE_VERSION == 1) {
+    g.fillPoly([
+      middle, circleTop,
+      middle - 25, circleTop + 5,
+      middle - 40, circleTop + 16,
+      middle - 10, circleTop - 5,
+      middle - 3, circleTop - 10,
+      middle, circleTop - 15
+    ]);
+  
+    g.fillPoly([
+      middle, circleTop,
+      middle + 25, circleTop + 5,
+      middle + 40, circleTop + 16,
+      middle + 10, circleTop - 5,
+      middle + 3, circleTop - 10,
+      middle, circleTop - 15
+    ]);
+  
+  }
 
 }
 
@@ -633,12 +635,11 @@ function printBackground() {
 
   g.setColor(watchColor);
   if (HARDWARE_VERSION == 1) {
- 
     g.drawCircle(screenWidth / 2, screenHeight / 2, 55);
     g.drawCircle(screenWidth / 2, screenHeight / 2, 54);
     g.drawCircle(screenWidth / 2, screenHeight / 2, 53);
-    drawClockPointer();
   }
+  drawClockPointer();
 
 }
 
