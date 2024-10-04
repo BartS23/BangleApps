@@ -155,10 +155,8 @@ function update() {
 
   log("Start Update");
   if (settings.nextUpdate >= Date.now()) {
-    log(`must wait until ${new Date(settings.nextUpdate)}`);
-    if (!Bangle.rmkEvents) {
-      setUpdateTimeout(settings.nextUpdate);
-    }
+    log(`must wait until ${new Date(settings.nextUpdate).toISOString()}`);
+    setUpdateTimeout(settings.nextUpdate);
     return;
   }
 
@@ -171,7 +169,7 @@ function update() {
 
   settings.nextUpdate = Date.now() + settings.updateInterval;
   if (Bangle.http) {
-    log("fetching Daten");
+    log("fetching data");
     Bangle.http("https://test.stressbengel.de/caldav/t2.php?token=" + getToken(settings.token), { headers: {} })
       .then(responseEvent => {
         let response = JSON.parse(responseEvent.resp);

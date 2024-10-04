@@ -1,6 +1,6 @@
-
 setTimeout(() => require("rmkEvents").update());
 Bangle.on('midnight', () => {
+  // Cleanup log files -->
   const storage = require("Storage");
   const logFiles = storage.list(/^rmkEvents-.*\.log$/, { sf: true });
   let date = new Date();
@@ -9,4 +9,5 @@ Bangle.on('midnight', () => {
   logFiles
     .filter(file => /^rmkEvents-([\d-]+)/.exec(file)[1] <= date)
     .forEach(file => storage.open(file, 'r').erase());
+  // <-- Cleanup log files
 });
