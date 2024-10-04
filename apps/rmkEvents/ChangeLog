@@ -7,3 +7,4 @@
 0.07: cleanup on midnight
 0.08: fix updateEvent
 0.09: fire reload after update
+0.10: fix not updating anymore
