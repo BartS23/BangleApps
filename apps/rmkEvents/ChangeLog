@@ -1,0 +1,10 @@
+0.01: New App!
+0.02: add dependency
+0.03: include own showPrompt
+0.04: remove own showPrompt
+0.05: fix EntryPoint error
+0.06: Call correct app js
+0.07: cleanup on midnight
+0.08: fix updateEvent
+0.09: fire reload after update
+0.10: fix not updating anymore
