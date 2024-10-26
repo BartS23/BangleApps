@@ -1,3 +1,4 @@
+{
 Bangle.loadWidgets();
 Bangle.drawWidgets();
 
@@ -159,6 +160,8 @@ function showAlertsMenu() {
 function showBLEMenu() {
   var hidV = [false, "kbmedia", "kb", "com", "joy"];
   var hidN = [/*LANG*/"Off", /*LANG*/"Kbrd & Media", /*LANG*/"Kbrd", /*LANG*/"Kbrd & Mouse", /*LANG*/"Joystick"];
+  var privacy = [/*LANG*/"Off", /*LANG*/"Show name", /*LANG*/"Hide name"];
+
   E.showMenu({
     '': { 'title': /*LANG*/'Bluetooth' },
     '< Back': ()=>showMainMenu(),
@@ -174,6 +177,32 @@ function showBLEMenu() {
       value: settings.blerepl,
       onchange: () => {
         settings.blerepl = !settings.blerepl;
+        updateSettings();
+      }
+    },
+    /*LANG*/'Privacy': {
+      min: 0, max: privacy.length-1,
+      format: v => privacy[v],
+      value: (() => {
+        // settings.bleprivacy may be some custom object, but we ignore that for now
+        if (settings.bleprivacy && settings.blename === false) return 2;
+        if (settings.bleprivacy) return 1;
+        return 0;
+      })(),
+      onchange: v => {
+        settings.bleprivacy = 0;
+        delete settings.blename;
+        switch (v) {
+          case 0:
+            break;
+          case 1:
+            settings.bleprivacy = 1;
+            break;
+          case 2:
+            settings.bleprivacy = 1;
+            settings.blename = false;
+            break;
+        }
         updateSettings();
       }
     },
@@ -622,11 +651,11 @@ function showUtilMenu() {
       E.showMessage(/*LANG*/'Flattening battery - this can take hours.\nLong-press button to cancel.');
       Bangle.setLCDTimeout(0);
       Bangle.setLCDPower(1);
+      Bangle.setLCDBrightness(1);
       if (Bangle.setGPSPower) Bangle.setGPSPower(1,"flat");
       if (Bangle.setHRMPower) Bangle.setHRMPower(1,"flat");
       if (Bangle.setCompassPower) Bangle.setCompassPower(1,"flat");
       if (Bangle.setBarometerPower) Bangle.setBarometerPower(1,"flat");
-      if (Bangle.setHRMPower) Bangle.setGPSPower(1,"flat");
       setInterval(function() {
         var i=1000;while (i--);
       }, 1);
@@ -634,7 +663,7 @@ function showUtilMenu() {
   };
   if (BANGLEJS2)
     menu[/*LANG*/'Calibrate Battery'] = () => {
-      E.showPrompt(/*LANG*/"Is the battery fully charged?",{title:/*LANG*/"Calibrate"}).then(ok => {
+      E.showPrompt(/*LANG*/"Is the battery fully charged?",{title:/*LANG*/"Calibrate",back:showUtilMenu}).then(ok => {
         if (ok) {
           var s=storage.readJSON("setting.json");
           s.batFullVoltage = (analogRead(D3)+analogRead(D3)+analogRead(D3)+analogRead(D3))/4;
@@ -646,7 +675,7 @@ function showUtilMenu() {
       });
     };
   menu[/*LANG*/'Reset Settings'] = () => {
-      E.showPrompt(/*LANG*/'Reset to Defaults?',{title:/*LANG*/"Settings"}).then((v) => {
+      E.showPrompt(/*LANG*/'Reset to Defaults?',{title:/*LANG*/"Settings",back:showUtilMenu}).then((v) => {
         if (v) {
           E.showMessage(/*LANG*/'Resetting');
           resetSettings();
@@ -656,7 +685,7 @@ function showUtilMenu() {
     };
   menu[/*LANG*/"Turn Off"] = () => {
     E.showPrompt(/*LANG*/"Are you sure? Alarms and timers won't fire", {
-      title:/*LANG*/"Turn Off"
+      title:/*LANG*/"Turn Off",back:showUtilMenu
     }).then((confirmed) => {
       if (confirmed) {
         E.showMessage(/*LANG*/"See you\nlater!", /*LANG*/"Goodbye");
@@ -673,14 +702,24 @@ function showUtilMenu() {
       }
     });
   };
-
   if (Bangle.factoryReset) {
     menu[/*LANG*/'Factory Reset'] = ()=>{
-      E.showPrompt(/*LANG*/'This will remove everything!',{title:/*LANG*/"Factory Reset"}).then((v) => {
+      E.showPrompt(/*LANG*/'This will remove everything!',{title:/*LANG*/"Factory Reset",back:showUtilMenu}).then((v) => {
         if (v) {
-          E.showMessage();
-          Terminal.setConsole();
-          Bangle.factoryReset();
+          var n = ((Math.random()*4)&3) + 1;
+          E.showPrompt(/*LANG*/"To confirm, please press "+n,{
+            title:/*LANG*/"Factory Reset",
+            buttons : {"1":1,"2":2,"3":3,"4":4},
+            back:showUtilMenu
+          }).then(function(v) {
+            if (v==n) {
+              E.showMessage();
+              Terminal.setConsole();
+              Bangle.factoryReset();
+            } else {
+              showUtilMenu();
+            }
+          });
         } else showUtilMenu();
       });
     }
@@ -956,3 +995,4 @@ function showTouchscreenCalibration() {
 }
 
 showMainMenu();
+}
