@@ -8,3 +8,4 @@
 0.08: fix updateEvent
 0.09: fire reload after update
 0.10: fix not updating anymore
+0.11: change android dependency
