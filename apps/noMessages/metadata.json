@@ -1,0 +1,14 @@
+{
+  "id": "noMessages",
+  "name": "No Messages",
+  "version": "0.01",
+  "description": "Empty Messages Library",
+  "icon": "app.png",
+  "type": "module",
+  "tags": "tool,system",
+  "supports": ["BANGLEJS2"],
+  "provides_modules" : ["messages"],
+  "default": false,
+  "storage": [
+    {"name":"messages","url":"lib.js"}
+  ]}
