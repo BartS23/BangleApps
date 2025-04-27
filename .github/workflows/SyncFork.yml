@@ -16,3 +16,4 @@ jobs:
         with:
           ref: BangleAppsOrg
           
+      - run: git remote add Bangle https://github.com/espruino/BangleApps.git
