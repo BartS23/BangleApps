@@ -1,9 +1,11 @@
 {
   let clockInfoItems = require("clock_info").load();
+  const menuIndex = clockInfoItems.findIndex(menu => menu.name == "Bangle");
+  const menuItemIndex = clockInfoItems[menuIndex].items.findIndex(menuItem => menuItem.name == "Steps");
   let clockInfoMenu;
   let lockHandler = lock => {
-    if (lock && clockInfoMenu && !(clockInfoMenu.menuA == 0 && clockInfoMenu.menuB == 1)) {
-      clockInfoMenu.setItem(0, 1);
+    if (lock && clockInfoMenu && !(clockInfoMenu.menuA == menuIndex && clockInfoMenu.menuB == menuItemIndex)) {
+      clockInfoMenu.setItem(menuIndex, menuItemIndex);
     }
   };
   let clockInfoDraw = (itm, info, options) => {
@@ -46,7 +48,7 @@
         bg: g.theme.bg,
         fg: g.theme.fg
       });
-      clockInfoMenu.setItem(0, 1);
+      clockInfoMenu.setItem(menuIndex, menuItemIndex);
       Bangle.on("lock", lockHandler);
     }
   };
