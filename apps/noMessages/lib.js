@@ -1,0 +1,14 @@
+exports.music = _ => { };
+exports.pushMessage = _ => { };
+exports.save = _ => { };
+exports.apply = _ => { };
+exports.accept = _ => { };
+exports.dismiss = _ => { };
+exports.openGUI = _ => { };
+exports.toggleWidget = _ => { };
+exports.write = _ => { };
+exports.clearAll = _ => { };
+exports.getMessages = _ => [];
+exports.status = _ => { };
+exports.buzz = _ => { };
+exports.stopBuzz = _ => { };
