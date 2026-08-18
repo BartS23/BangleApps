@@ -1,7 +1,7 @@
 { "id": "tennisscores",
   "name": "Tennis Scores",
   "shortName": "Tennis",
-  "version": "0.01",
+  "version": "0.02",
   "author": "bensynapse",
   "description": "Live tennis scores and upcoming fixtures from the Live Tennis API. Shows score, serving player and next matches for a configurable tour (requires Gadgetbridge and an API key)",
   "icon": "app.png",

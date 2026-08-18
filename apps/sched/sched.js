@@ -49,7 +49,7 @@ function showSnoozeMenu(alarm){
   if(alarm.timer){
 
     let timerLength=alarm.timer;
-    let buttons={ "15s": 15, "30s":30,"1m":60 ,"2m":120,"5m":360};
+    let buttons={ "15s": 15, "30s":30,"1m":60 ,"2m":120,"5m":300};
     let formattedLength = formatMS(timerLength)+"*";
     buttons[formattedLength] = Math.round(timerLength/1000);
     //different button lengths

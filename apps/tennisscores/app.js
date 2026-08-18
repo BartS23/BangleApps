@@ -13,6 +13,7 @@ let matches = [];  // slimmed live matches
 let fixtures = []; // slimmed upcoming fixtures
 let index = 0;     // current page
 let lastError = "";
+let errDetail = "";
 let updatedAt = null;
 let autoTimer = null;
 let loading = false;
@@ -27,7 +28,25 @@ function apiGet(path) {
   return Bangle.http(BASE + path, {
     timeout: 15000,
     headers: {Authorization: "Bearer " + settings.apikey}
-  }).then(ev => JSON.parse(ev.resp));
+  }).then(ev => {
+    let r = JSON.parse(ev.resp);
+    // the API reports failures as {"error":"unauthorized"} etc
+    if (r && r.error) throw new Error(r.error);
+    return r;
+  });
+}
+
+// map a rejection to a short, watch-readable message (null = not recognised)
+function humanError(e) {
+  let s = "" + ((e && e.message) || e);
+  if (/unauthori[sz]ed|forbidden/i.test(s)) return /*LANG*/"Check API key";
+  if (/rate.?limit|too many/i.test(s)) return /*LANG*/"Rate limited";
+  if (/timeout|timed out/i.test(s)) return /*LANG*/"Request timed out";
+  if (/bluetooth/i.test(s)) return /*LANG*/"Not connected";
+  if (/gadgetbridge/i.test(s)) return /*LANG*/"Needs Gadgetbridge";
+  if (/connect|resolve|unreachable|network|internet|dns/i.test(s)) return /*LANG*/"No connection";
+  if (/bad response|json|parse|expect/i.test(s)) return /*LANG*/"Bad response";
+  return null;
 }
 
 function trunc(s, n) {
@@ -115,7 +134,10 @@ function refresh() {
     draw();
   }).catch(e => {
     loading = false;
-    lastError = ("" + ((e && e.message) || e)).substr(0, 60);
+    let h = humanError(e);
+    lastError = h || /*LANG*/"Error";
+    // only surface the raw text (small, below) when we can't name the problem
+    errDetail = h ? "" : ("" + ((e && e.message) || e)).substr(0, 40);
     state = "error";
     scheduleAuto();
     draw();
@@ -226,10 +248,16 @@ function draw() {
     g.setFont("6x8").setFontAlign(0, 1);
     g.drawString("livetennisapi.com", (R.x + R.x2) / 2, R.y2);
   } else if (state === "error") {
-    drawCentered([/*LANG*/"Error"], R);
-    g.setFont("6x8").setFontAlign(0, -1);
-    g.drawString(g.wrapString(lastError, R.w - 8).slice(0, 3).join("\n"), (R.x + R.x2) / 2, (R.y + R.y2) / 2 + 4);
-    drawFooter(R);
+    g.setFont("6x8", 2).setFontAlign(0, -1);
+    let lines = g.wrapString(lastError, R.w - 8);
+    let y = (R.y + R.y2) / 2 - lines.length * 9 - (errDetail ? 8 : 0);
+    g.drawString(lines.join("\n"), (R.x + R.x2) / 2, y);
+    if (errDetail) {
+      g.setFont("6x8").setFontAlign(0, -1);
+      g.drawString(g.wrapString(errDetail, R.w - 8).slice(0, 2).join("\n"), (R.x + R.x2) / 2, y + lines.length * 18 + 4);
+    }
+    g.setFont("6x8").setFontAlign(0, 1);
+    g.drawString(/*LANG*/"tap to retry", (R.x + R.x2) / 2, R.y2);
   } else {
     drawCentered([/*LANG*/"Loading..."], R);
   }
